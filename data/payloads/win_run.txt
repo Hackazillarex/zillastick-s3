@@ -1,0 +1,2 @@
+REM Open Windows Run Dialog
+GUI r

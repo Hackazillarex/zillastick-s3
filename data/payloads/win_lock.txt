@@ -1,0 +1,2 @@
+REM Lock Windows screen
+GUI l

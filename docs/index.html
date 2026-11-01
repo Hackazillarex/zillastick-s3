@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZILLASTICK S3 — Web Flasher</title>
+  <script type="module" src="https://unpkg.com/esp-web-tools@10/dist/web/install-button.js?module"></script>
+  <style>
+    :root {
+      --bg:       #0c0000;
+      --surface:  #1a0000;
+      --border:   #3c0000;
+      --primary:  #dc0000;
+      --bright:   #ff2828;
+      --accent:   #ff6400;
+      --text:     #ffffff;
+      --dim:      #a0a0a0;
+      --success:  #00c850;
+      --warn:     #ffc800;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem 4rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    header .logo {
+      font-size: 2.4rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      color: var(--bright);
+      text-shadow: 0 0 24px rgba(220,0,0,0.6);
+    }
+
+    header .logo span {
+      color: var(--accent);
+    }
+
+    header .subtitle {
+      color: var(--dim);
+      font-size: 0.9rem;
+      margin-top: 0.3rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .badge {
+      display: inline-block;
+      background: var(--primary);
+      color: #fff;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.15rem 0.55rem;
+      border-radius: 3px;
+      letter-spacing: 0.08em;
+      margin-left: 0.5rem;
+      vertical-align: middle;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 2rem;
+      max-width: 560px;
+      width: 100%;
+      margin-bottom: 1.5rem;
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--bright);
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.6rem;
+    }
+
+    .flash-zone {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 0;
+    }
+
+    .flash-zone p {
+      color: var(--dim);
+      font-size: 0.88rem;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    esp-web-install-button {
+      --esp-tools-button-color: var(--primary);
+      --esp-tools-button-text-color: #fff;
+    }
+
+    esp-web-install-button::part(button) {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 700;
+      padding: 0.75rem 2.2rem;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+      transition: background 0.15s;
+    }
+
+    esp-web-install-button::part(button):hover {
+      background: var(--bright);
+    }
+
+    .steps {
+      list-style: none;
+      counter-reset: steps;
+    }
+
+    .steps li {
+      counter-increment: steps;
+      display: flex;
+      gap: 0.9rem;
+      align-items: flex-start;
+      margin-bottom: 0.9rem;
+      font-size: 0.9rem;
+      color: var(--dim);
+      line-height: 1.55;
+    }
+
+    .steps li::before {
+      content: counter(steps);
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 50%;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 1px;
+    }
+
+    .steps li strong {
+      color: var(--text);
+    }
+
+    .compat {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      margin-top: 0.5rem;
+    }
+
+    .compat-pill {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.8rem;
+      color: var(--dim);
+    }
+
+    .compat-pill.ok {
+      border-color: var(--success);
+      color: var(--success);
+    }
+
+    .compat-pill.no {
+      border-color: #555;
+      color: #555;
+      text-decoration: line-through;
+    }
+
+    .warn-box {
+      background: rgba(255, 200, 0, 0.07);
+      border: 1px solid rgba(255, 200, 0, 0.3);
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      font-size: 0.84rem;
+      color: var(--warn);
+      line-height: 1.55;
+      margin-top: 0.5rem;
+    }
+
+    .warn-box strong { color: var(--warn); }
+
+    .links {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 0.5rem;
+    }
+
+    .links a {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.88rem;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.15s;
+    }
+
+    .links a:hover {
+      border-color: var(--accent);
+    }
+
+    footer {
+      color: var(--dim);
+      font-size: 0.78rem;
+      text-align: center;
+      margin-top: 2rem;
+      line-height: 1.7;
+    }
+
+    footer a { color: var(--dim); }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">ZILLASTICK <span>S3</span> <span class="badge">BETA</span></div>
+    <div class="subtitle">Wireless Auditing Firmware · By Hackazillarex</div>
+  </header>
+
+  <!-- Flash Card -->
+  <div class="card">
+    <h2>Flash Firmware</h2>
+    <div class="flash-zone">
+      <p>Connect your M5Stack StickC S3 via USB, then click the button below.<br>
+         No drivers or software to install — works directly in your browser.</p>
+      <esp-web-install-button manifest="manifest.json"></esp-web-install-button>
+      <p style="font-size:0.78rem;">Requires Chrome or Edge with Web Serial enabled.
+         <strong style="color:var(--warn);">First flash will erase the device.</strong></p>
+    </div>
+  </div>
+
+  <!-- Instructions -->
+  <div class="card">
+    <h2>Before You Flash</h2>
+    <ol class="steps">
+      <li><strong>Use Chrome or Edge</strong> — Firefox does not support Web Serial.</li>
+      <li><strong>Connect via USB-C</strong> — use the port on the M5StickC S3 body, not the RF Pack.</li>
+      <li><strong>Hold BtnA while plugging in</strong> if the device is not detected — this puts it into download mode.</li>
+      <li><strong>Select the correct COM port</strong> when the browser prompts — it will be labeled CP210x or similar.</li>
+      <li>After flashing, the device reboots automatically into the ZILLASTICK S3 menu.</li>
+    </ol>
+
+    <div class="warn-box" style="margin-top:1rem;">
+      <strong>⚠ First flash erases all saved data.</strong> WiFi credentials, captures, and payload files on the device will be wiped. Back up anything important first via the File Manager or Remote Ctrl Files tab.
+    </div>
+  </div>
+
+  <!-- Compatibility -->
+  <div class="card">
+    <h2>Hardware Compatibility</h2>
+    <p style="font-size:0.88rem; color:var(--dim); margin-bottom:0.8rem;">
+      This firmware is built specifically for the M5Stack StickC S3 with the Pingequa RF Pack S3 v1.
+      Other hardware combinations are not supported.
+    </p>
+    <div class="compat">
+      <span class="compat-pill ok">M5StickC S3</span>
+      <span class="compat-pill ok">Pingequa RF Pack S3 v1</span>
+      <span class="compat-pill no">M5StickC Plus</span>
+      <span class="compat-pill no">M5StickC (original)</span>
+      <span class="compat-pill no">M5Stick C Plus2</span>
+    </div>
+
+    <h2 style="margin-top:1.5rem;">Browser Compatibility</h2>
+    <div class="compat">
+      <span class="compat-pill ok">Chrome 89+</span>
+      <span class="compat-pill ok">Edge 89+</span>
+      <span class="compat-pill ok">Chrome Android</span>
+      <span class="compat-pill no">Firefox</span>
+      <span class="compat-pill no">Safari</span>
+    </div>
+  </div>
+
+  <!-- Links -->
+  <div class="card">
+    <h2>Resources</h2>
+    <div class="links">
+      <a href="https://github.com/hackazillarex/zillastick-s3" target="_blank">GitHub Repo</a>
+      <a href="https://github.com/hackazillarex/zillastick-s3/releases" target="_blank">Release Notes</a>
+      <a href="https://github.com/hackazillarex/zillastick-s3/issues" target="_blank">Report a Bug</a>
+      <a href="https://github.com/hackazillarex/zillastick-s3/blob/main/README.md" target="_blank">Documentation</a>
+    </div>
+  </div>
+
+  <footer>
+    ZILLASTICK S3 is intended for use on networks you own or have explicit written authorization to test.<br>
+    By flashing this firmware you accept responsibility for how it is used.<br><br>
+    Built with <a href="https://esphome.github.io/esp-web-tools/" target="_blank">ESP Web Tools</a> ·
+    <a href="https://github.com/hackazillarex" target="_blank">Hackazillarex</a>
+  </footer>
+
+</body>
+</html>
