@@ -1,6 +1,6 @@
 # ZILLASTICK S3 — Firmware Reference
 
-**Hardware:** M5Stack StickC S3 (ESP32-S3) + Pingequa RF Pack S3 v1  
+**Hardware:** M5Stack Stick S3 (ESP32-S3) + Pingequa RF Pack S3 v1  
 **Build system:** PlatformIO  
 **Serial port:** `/dev/ttyACM0` (Linux/Kali)  
 **By:** Hackazillarex
@@ -13,7 +13,7 @@ Flash the firmware directly from your browser — no software to install.
 
 **👉 [https://hackazillarex.github.io/zillastick-s3/](https://hackazillarex.github.io/zillastick-s3/)**
 
-> Requires Chrome or Edge. Connect your M5StickC S3 via USB before clicking.
+> Requires Chrome or Edge. Connect your M5Stick S3 via USB before clicking.
 
 ---
 
