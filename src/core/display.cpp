@@ -34,10 +34,10 @@ void display_splash() {
     M5.Lcd.setCursor((DISP_W - tw) / 2, 52);
     M5.Lcd.print(FW_SUBTITLE);
 
-    // M5StickC S3 hardware label
+    // M5Stick S3 hardware label
     M5.Lcd.setTextSize(1);
     M5.Lcd.setTextColor(CLR_TEXT_DIM, CLR_BG);
-    const char* hw = "M5StickC S3 + RF Pack S3 v1";
+    const char* hw = "M5Stick S3 + RF Pack S3 v1";
     tw = strlen(hw) * 6;
     M5.Lcd.setCursor((DISP_W - tw) / 2, 88);
     M5.Lcd.print(hw);

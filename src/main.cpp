@@ -1,6 +1,6 @@
 // ─────────────────────────────────────────────────────────────
 //  PINGEQUA Firmware v1.0.0
-//  M5Stack StickC S3 + Pingequa RF Pack S3 v1
+//  M5Stack Stick S3 + Pingequa RF Pack S3 v1
 //  Custom, original firmware — not a fork.
 //  (c) hackazillarex / zillastick.com
 // ─────────────────────────────────────────────────────────────

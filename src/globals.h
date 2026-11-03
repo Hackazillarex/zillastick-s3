@@ -12,7 +12,7 @@
 #define FW_SUBTITLE  "Wireless Auditing"
 #define FW_AUTHOR    "By Hackazillarex"
 
-// ── Display (M5StickC S3, landscape 240x135) ──────────────────
+// ── Display (M5Stick S3, landscape 240x135) ───────────────────
 #define DISP_W       240
 #define DISP_H       135
 #define HEADER_H     20
@@ -21,7 +21,7 @@
 #define CONTENT_H    (DISP_H - HEADER_H - FOOTER_H - 4)
 
 // ── Pingequa RF Pack S3 v1 — Pin Mapping ─────────────────────
-// Source: Bruce firmware table for M5StickC S3 + RF Pack S3 v1
+// Source: Bruce firmware table for M5Stick S3 + RF Pack S3 v1
 // Verified against: community.home-assistant.io/t/cc1101-pins-on-m5-sticks3/1015931
 #define RF_SPI_SCK   5
 #define RF_SPI_MISO  4
