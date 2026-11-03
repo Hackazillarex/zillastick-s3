@@ -36,4 +36,5 @@ void show_error(const char* msg);
 void show_success(const char* msg);
 
 // Battery indicator
+int  battery_pct();          // smoothed percentage (8-sample moving average)
 void draw_battery(int x, int y);

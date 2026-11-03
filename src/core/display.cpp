@@ -193,9 +193,41 @@ void show_success(const char* msg) {
     M5.Lcd.print(msg);
 }
 
+// ── Smoothed battery percentage ───────────────────────────────
+// Samples up to 8 readings, one per second, and returns the average.
+// Eliminates the AXP2101 voltage-curve bounce and fast initial drop
+// seen when the device is under WiFi + RF load.
+int battery_pct() {
+    static int     samples[8]  = { -1,-1,-1,-1,-1,-1,-1,-1 };
+    static uint8_t idx         = 0;
+    static uint32_t last_ms    = 0;
+
+    uint32_t now = millis();
+    // Seed the buffer on first call so we have something to return immediately
+    if (samples[0] < 0) {
+        int raw = M5.Power.getBatteryLevel();
+        if (raw < 0)   raw = 0;
+        if (raw > 100) raw = 100;
+        for (int i = 0; i < 8; i++) samples[i] = raw;
+    }
+
+    if (now - last_ms >= 1000) {
+        last_ms = now;
+        int raw = M5.Power.getBatteryLevel();
+        if (raw < 0)   raw = 0;
+        if (raw > 100) raw = 100;
+        samples[idx] = raw;
+        idx = (idx + 1) % 8;
+    }
+
+    int sum = 0;
+    for (int i = 0; i < 8; i++) sum += samples[i];
+    return sum / 8;
+}
+
 // ── Battery indicator (top-right corner) ─────────────────────
 void draw_battery(int x, int y) {
-    int pct = M5.Power.getBatteryLevel();
+    int pct = battery_pct();
     uint16_t color = (pct > 50) ? CLR_SUCCESS : (pct > 20) ? CLR_WARN : CLR_ERR;
     int filled = (16 * pct) / 100;
     M5.Lcd.drawRect(x, y, 18, 8, CLR_TEXT_DIM);
