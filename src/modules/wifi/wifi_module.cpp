@@ -437,7 +437,7 @@ static void _hs_radio_start(uint8_t channel) {
     WiFi.persistent(false);
     WiFi.mode(WIFI_AP);
     WiFi.softAP("", "", channel, 1);          // hidden AP, locks hardware channel
-    esp_wifi_set_max_tx_power(82);
+    esp_wifi_set_max_tx_power(g_cfg.wifi_tx_power);
     esp_wifi_set_channel(channel, WIFI_SECOND_CHAN_NONE);
     wifi_promiscuous_filter_t flt = { .filter_mask = WIFI_PROMIS_FILTER_MASK_DATA };
     esp_wifi_set_promiscuous_filter(&flt);
@@ -599,7 +599,7 @@ void wifi_module_run() {
     m.add("Beacon Spam",     "");   // 5
     m.add("Probe Sniff",     "");   // 6
     m.add("Deauth Detect",   "");   // 7
-    m.add("HS Passive BETA",      "");   // 8
+    m.add("HS Passive",      "");   // 8
     m.add("HS Active",       "");   // 9
     m.add("< Back",          "");   // 10
     m.draw();
@@ -1139,8 +1139,8 @@ void wifi_deauth_run() {
                  // on the target channel before we start injecting frames.
                  // 100 ms was too short — early frames were landing on the
                  // driver-default channel (1) instead of the target channel.
-    // Push TX power to hardware maximum: 82 × 0.25 dBm = 20.5 dBm
-    esp_wifi_set_max_tx_power(82);
+    // TX power from user config (default 52 = 13 dBm; 82 = 20.5 dBm max)
+    esp_wifi_set_max_tx_power(g_cfg.wifi_tx_power);
     // Note: esp_wifi_set_protocol() is intentionally NOT called here.
     // 802.11 management frames (deauth/disassoc) are always transmitted at
     // legacy basic rates by the standard — protocol mode only affects data
@@ -1563,7 +1563,7 @@ void wifi_evil_twin_run() {
     bool ap_ok = WiFi.softAP(s_nets[target].ssid, "",
                              s_nets[target].channel, /*hidden=*/0);
     delay(500);  // let the AP stack fully initialise and send first beacons
-    esp_wifi_set_max_tx_power(82);   // 20.5 dBm — ESP32-S3 hardware max
+    esp_wifi_set_max_tx_power(g_cfg.wifi_tx_power);  // user-configured TX power
 
     // ── Diagnostic screen (shows for 4 s) ─────────────────────
     // softAP() returning true does NOT guarantee the SSID is on air.

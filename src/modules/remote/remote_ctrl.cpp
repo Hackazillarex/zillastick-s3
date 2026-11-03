@@ -31,6 +31,7 @@
 
 #include "../../globals.h"
 #include "../../core/display.h"
+#include "../../core/config.h"
 #include "../rf/rf_cc1101.h"
 #include "../badusb/badusb.h"
 #include "../nrf24/nrf24_module.h"
@@ -747,7 +748,7 @@ static void _et_task(void* arg) {
     vTaskDelay(pdMS_TO_TICKS(50));
     WiFi.softAP(ssid, "", ch, 0);
     vTaskDelay(pdMS_TO_TICKS(500));
-    esp_wifi_set_max_tx_power(82);
+    esp_wifi_set_max_tx_power(g_cfg.wifi_tx_power);  // user-configured TX power
 
     s_et_srv = new AsyncWebServer(80);
 

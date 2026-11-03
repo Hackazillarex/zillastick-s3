@@ -196,7 +196,7 @@ and disassociation frames at the AP's BSSID.
 
 - Uses `WIFI_IF_AP` (requires hidden softAP to be active) — this is the only
   interface that allows raw 802.11 frame injection on ESP32-S3
-- TX power: 20.5 dBm (82 × 0.25, ESP32-S3 hardware max)
+- TX power: User-configurable via Settings → WiFi TX Power (default 13 dBm / 60%)
 - 100 frames per burst (50 deauth + 50 disassoc), no inter-frame delay
 - **WPA3 / WPA2+WPA3 targets**: a warning screen appears. PMF (802.11w)
   is mandatory on these networks and causes unprotected deauth frames to be
@@ -453,6 +453,44 @@ ENTER
 | CC1101 GDO2 | not connected |
 | nRF24 CE | 1 |
 | nRF24 CS | 8 |
+
+---
+
+## Settings Menu
+
+Accessible from the main menu → **Settings**.
+
+| Setting | A button | Description |
+|---------|----------|-------------|
+| **RF Frequency** | +0.1 MHz (wraps 300→928) | Carrier frequency for CC1101 Sub-GHz module |
+| **BadUSB Delay** | +10 ms (10–500 ms) | Delay between keystrokes for BadUSB payloads |
+| **Display Bright** | +10% (wraps low→high) | LCD backlight brightness |
+| **WiFi TX Power** | Cycle through 5 levels | ESP32-S3 WiFi transmit power (see table below) |
+| **About** | — | Firmware version, hardware status, free heap |
+
+### WiFi TX Power Levels
+
+Controls the ESP32-S3 radio TX power for all WiFi operations (scan, deauth, evil twin, remote ctrl). Lower settings reduce device heat with minimal impact on close-range performance.
+
+| Level | dBm | Range tradeoff |
+|-------|-----|----------------|
+| 20% | 4.0 dBm | Same room only |
+| 40% | 8.5 dBm | Short range |
+| **60% (default)** | **13.0 dBm** | **Good balance — recommended** |
+| 80% | 17.0 dBm | Extended range |
+| 100% | 20.5 dBm | Maximum (device runs warm) |
+
+Setting is saved to `pq_config.json` and persists across reboots.
+
+> **Heat note:** The default 60% (13 dBm) setting significantly reduces device
+> temperature compared to the hardware max while maintaining effective range for
+> most scenarios. Increase to 80–100% only when you need to reach distant targets.
+
+### Battery Percentage
+
+The battery indicator and long-press B power screen display a **smoothed** percentage
+(8-sample rolling average, updated once per second). This eliminates the fast initial
+drop and bouncing behavior caused by the AXP2101 voltage curve under WiFi/RF load.
 
 ---
 

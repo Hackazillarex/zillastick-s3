@@ -30,11 +30,23 @@ bool      g_nrf_ready   = false;
 bool      g_nrf_detected = false;  // latches true on first confirmed NRF24 init
 
 // ─── Settings screen ──────────────────────────────────────────
+// TX power levels in 20% increments (esp_wifi units = dBm × 4)
+static const uint8_t TX_PWR_VALS[5] = { 16, 34, 52, 68, 82 };
+static const char*   TX_PWR_LABELS[5] = { "20%  4.0dBm", "40%  8.5dBm",
+                                           "60% 13.0dBm", "80% 17.0dBm",
+                                          "100% 20.5dBm" };
+static uint8_t _tx_pwr_idx() {
+    for (uint8_t i = 0; i < 5; i++)
+        if (TX_PWR_VALS[i] >= g_cfg.wifi_tx_power) return i;
+    return 4;
+}
+
 static void settings_run() {
     Menu m("Settings");
     m.add("RF Frequency",  "R");
     m.add("BadUSB Delay",  "B");
     m.add("Display Bright","D");
+    m.add("WiFi TX Power", "T");
     m.add("About",         "?");
     m.add("< Back",        " ");
     m.draw();
@@ -133,6 +145,40 @@ static void settings_run() {
                     break;
                 }
                 case 3: {
+                    // WiFi TX Power
+                    display_clear();
+                    draw_header("WiFi TX Power");
+                    uint8_t pwr_idx = _tx_pwr_idx();
+                    while (true) {
+                        M5.update();
+                        M5.Lcd.fillRect(0, CONTENT_Y, DISP_W, CONTENT_H, CLR_BG);
+                        M5.Lcd.setTextSize(2);
+                        M5.Lcd.setTextColor(CLR_PRIMARY, CLR_BG);
+                        M5.Lcd.setCursor(14, CONTENT_Y + 10);
+                        M5.Lcd.printf("%s", TX_PWR_LABELS[pwr_idx]);
+                        M5.Lcd.setTextSize(1);
+                        M5.Lcd.setTextColor(CLR_TEXT_DIM, CLR_BG);
+                        M5.Lcd.setCursor(4, CONTENT_Y + 40);
+                        M5.Lcd.print("Lower = cooler device");
+                        M5.Lcd.setCursor(4, CONTENT_Y + 54);
+                        M5.Lcd.print("Higher = more range");
+                        draw_footer("A:cycle", "B:save");
+                        if (M5.BtnA.wasPressed()) {
+                            pwr_idx = (pwr_idx + 1) % 5;
+                        }
+                        if (M5.BtnB.wasPressed()) {
+                            g_cfg.wifi_tx_power = TX_PWR_VALS[pwr_idx];
+                            config_save();
+                            show_success("Saved!");
+                            delay(800);
+                            break;
+                        }
+                        if (M5.BtnB.pressedFor(LONG_PRESS_MS)) break;
+                        delay(10);
+                    }
+                    break;
+                }
+                case 4: {
                     // About
                     display_clear();
                     draw_header("About");
@@ -169,7 +215,7 @@ static void settings_run() {
                     }
                     break;
                 }
-                case 4: return;
+                case 5: return;
             }
             m.draw();
         }
@@ -196,6 +242,7 @@ static const MainEntry MAIN_MENU[] = {
     { "Files",      "F", STATE_FILES,       false, false },
     { "Settings",   "S", STATE_SETTINGS,   false, false },
     { "Remote Ctrl","C", STATE_REMOTE_CTRL,false, false },
+    { "Power Off",  "P", STATE_POWER_OFF,  false, false },
 };
 #define MAIN_MENU_COUNT  (sizeof(MAIN_MENU)/sizeof(MAIN_MENU[0]))
 
@@ -243,6 +290,19 @@ static void dispatch(int sel) {
         case STATE_FILES:       file_manager_run();   break;
         case STATE_SETTINGS:    settings_run();       break;
         case STATE_REMOTE_CTRL: remote_ctrl_run();    break;
+        case STATE_POWER_OFF: {
+            display_clear();
+            draw_header("Power Off");
+            M5.Lcd.setTextSize(1);
+            M5.Lcd.setTextColor(CLR_TEXT_DIM, CLR_BG);
+            M5.Lcd.setCursor(4, CONTENT_Y + 20);
+            M5.Lcd.print("Powering off...");
+            M5.Lcd.setCursor(4, CONTENT_Y + 36);
+            M5.Lcd.print("Hold button to wake");
+            delay(1200);
+            M5.Power.powerOff();
+            break;  // unreachable, but good practice
+        }
         default: break;
     }
 
@@ -257,6 +317,12 @@ void setup() {
     M5.begin(cfg);
 
     Serial.println("\n\n[ZS] ZILLASTICK S3 firmware starting...");
+
+    // AXP2101 charge current — set explicitly so the device charges properly
+    // while running.  Default AXP2101 boot current is 100 mA (too low to keep
+    // up with ESP32-S3 + RF draw).  500 mA is the AXP2101/USB-C limit on this
+    // board.  M5Unified exposes the M5Stack-tuned setter directly.
+    M5.Power.setChargeCurrent(500);   // mA — max safe for the M5Stick S3 USB-C port
 
     // Display init
     display_init();
@@ -365,7 +431,7 @@ void loop() {
         M5.Lcd.setTextSize(2);
         M5.Lcd.setTextColor(CLR_PRIMARY, CLR_BG);
         M5.Lcd.setCursor(30, CONTENT_Y + 20);
-        int batt = M5.Power.getBatteryLevel();
+        int batt = battery_pct();
         M5.Lcd.printf("Bat: %d%%", batt);
         M5.Lcd.setTextSize(1);
         M5.Lcd.setTextColor(CLR_TEXT_DIM, CLR_BG);

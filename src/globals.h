@@ -80,7 +80,8 @@ enum AppState {
     STATE_FILES,
     STATE_SETTINGS,
     STATE_ABOUT,
-    STATE_REMOTE_CTRL
+    STATE_REMOTE_CTRL,
+    STATE_POWER_OFF
 };
 
 extern AppState   g_state;
