@@ -24,6 +24,22 @@
 #include <USB.h>
 #include <USBHIDKeyboard.h>
 
+#ifndef KEY_PRINT_SCREEN
+#define KEY_PRINT_SCREEN  0x46
+#endif
+#ifndef KEY_PAUSE
+#define KEY_PAUSE         0x48
+#endif
+#ifndef KEY_NUM_LOCK
+#define KEY_NUM_LOCK      0x53
+#endif
+#ifndef KEY_SCROLL_LOCK
+#define KEY_SCROLL_LOCK   0x47
+#endif
+#ifndef KEY_MENU
+#define KEY_MENU          0x65
+#endif
+
 static USBHIDKeyboard Keyboard;
 static bool s_usb_init = false;
 
