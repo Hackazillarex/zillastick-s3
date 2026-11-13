@@ -1,0 +1,5 @@
+REM Dump whoami / systeminfo / ipconfig / net users to Desktop, open in Notepad
+GUI r
+DELAY 800
+STRING cmd /c "(echo [WHOAMI] & whoami & echo. & echo [SYSTEMINFO] & systeminfo & echo. & echo [IPCONFIG] & ipconfig /all & echo. & echo [NET USERS] & net user) > %USERPROFILE%\Desktop\zillastick_dump.txt & start notepad %USERPROFILE%\Desktop\zillastick_dump.txt"
+ENTER

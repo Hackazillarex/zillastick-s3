@@ -1,0 +1,5 @@
+REM Show a popup message box
+GUI r
+DELAY 800
+STRING powershell -nop -w hidden -c "Add-Type -AssemblyName PresentationFramework; [System.Windows.MessageBox]::Show('ZillaStick S3 was here.`nBy Hackazillarex','ZillaStick S3',[System.Windows.MessageBoxButton]::OK,[System.Windows.MessageBoxImage]::Information)"
+ENTER

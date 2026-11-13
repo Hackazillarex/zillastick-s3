@@ -1,0 +1,5 @@
+REM Open Hackazillarex YouTube channel in default browser
+GUI r
+DELAY 800
+STRING https://youtube.com/@Hackazillarex
+ENTER
