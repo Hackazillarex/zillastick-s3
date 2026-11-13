@@ -34,12 +34,16 @@ jobs:
       - name: Build firmware
         run: platformio run
 
+      - name: Build filesystem image
+        run: platformio run -e pingequa -t buildfs
+
       - name: Stage firmware binaries
         run: |
           mkdir -p docs/firmware
-          cp .pio/build/pingequa/firmware.bin   docs/firmware/firmware.bin
-          cp .pio/build/pingequa/bootloader.bin docs/firmware/bootloader.bin
-          cp .pio/build/pingequa/partitions.bin docs/firmware/partitions.bin
+          cp .pio/build/pingequa/firmware.bin     docs/firmware/firmware.bin
+          cp .pio/build/pingequa/bootloader.bin   docs/firmware/bootloader.bin
+          cp .pio/build/pingequa/partitions.bin   docs/firmware/partitions.bin
+          cp .pio/build/pingequa/littlefs.bin     docs/firmware/littlefs.bin
           BOOT=$(find ~/.platformio -name boot_app0.bin | head -1)
           cp "$BOOT" docs/firmware/boot_app0.bin
 
@@ -75,4 +79,5 @@ jobs:
             docs/firmware/bootloader.bin
             docs/firmware/partitions.bin
             docs/firmware/boot_app0.bin
+            docs/firmware/littlefs.bin
           generate_release_notes: true
