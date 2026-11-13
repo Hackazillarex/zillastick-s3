@@ -24,7 +24,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
-#include <SPIFFS.h>
+#include <LittleFS.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include "esp_wifi.h"
@@ -772,8 +772,8 @@ static void _et_task(void* arg) {
         if (s_cap_pass.length() > 0) {
             s_creds  += String("SSID:") + ssid + " PASS:" + s_cap_pass + "\n";
             s_rc_msg  = "Password captured!";
-            if (SPIFFS.begin(false)) {
-                File f = SPIFFS.open("/captures/remote_et.txt", "a");
+            if (LittleFS.begin(false)) {
+                File f = LittleFS.open("/captures/remote_et.txt", "a");
                 if (f) { f.printf("SSID:%s PASS:%s\n", ssid, s_cap_pass.c_str()); f.close(); }
             }
             s_cap_pass = "";
@@ -812,8 +812,8 @@ static void _badusb_task(void* arg) {
 static String _list_files(const char* dir, const char* ext) {
     String j = "[";
     bool first = true;
-    if (!SPIFFS.begin(false)) return j + "]";
-    File root = SPIFFS.open(dir);
+    if (!LittleFS.begin(false)) return j + "]";
+    File root = LittleFS.open(dir);
     if (!root || !root.isDirectory()) return j + "]";
     File f = root.openNextFile();
     while (f) {
@@ -960,10 +960,10 @@ static void _register_routes() {
     s_srv->on("/api/file", HTTP_GET, [](AsyncWebServerRequest* req){
         if (!req->hasParam("path")) { req->send(400,"text/plain","missing path"); return; }
         String path = req->getParam("path")->value();
-        if (!SPIFFS.begin(false) || !SPIFFS.exists(path)) {
+        if (!LittleFS.begin(false) || !LittleFS.exists(path)) {
             req->send(404,"text/plain","not found"); return;
         }
-        req->send(SPIFFS, path, "text/plain");
+        req->send(LittleFS, path, "text/plain");
     });
 
     // POST /api/badusb/run  body: {"path":"/payloads/foo.txt"}

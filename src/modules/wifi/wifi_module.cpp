@@ -5,7 +5,7 @@
 #include "../../globals.h"
 #include <M5Unified.h>
 #include <FS.h>
-#include <SPIFFS.h>
+#include <LittleFS.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 
@@ -360,7 +360,7 @@ static void _hs_drain() {
 static char s_hs_last_fname[36];
 
 static bool _hs_save(int idx, const char* ssid, bool active) {
-    if (!SPIFFS.begin(false)) return false;
+    if (!LittleFS.begin(false)) return false;
     HSSession& s = s_hs_sess[idx];
 
     // SPIFFS path limit is 32 chars (including leading '/').
@@ -378,7 +378,7 @@ static bool _hs_save(int idx, const char* ssid, bool active) {
     const char* fname = s_hs_last_fname;
     // Use "w" (truncate) not "a" (append) — stale bytes from a prior run
     // cause hashcat to reject the file with a salt-length exception.
-    File f = SPIFFS.open(fname, "w");
+    File f = LittleFS.open(fname, "w");
     if (!f) return false;
 
     f.print("WPA*02*");
@@ -1314,7 +1314,7 @@ void wifi_evil_portal_run() {
             M5.Lcd.setCursor(4, CONTENT_Y + 44);
             M5.Lcd.print(s_captured_pass.substring(0, 30));
             // Save to file
-            File f = SPIFFS.open("/captures/portal.txt", "a");
+            File f = LittleFS.open("/captures/portal.txt", "a");
             if (f) { f.println(s_captured_pass); f.close(); }
             s_captured_pass = "";
         }
@@ -1673,8 +1673,8 @@ void wifi_evil_twin_run() {
                 M5.Lcd.printf("%.30s", s_captured_pass.c_str());
 
                 // Persist to SPIFFS /captures/evil_twin.txt
-                if (SPIFFS.begin(false)) {
-                    File f = SPIFFS.open("/captures/evil_twin.txt", "a");
+                if (LittleFS.begin(false)) {
+                    File f = LittleFS.open("/captures/evil_twin.txt", "a");
                     if (f) {
                         f.printf("SSID:%s PASS:%s\n",
                                  s_nets[target].ssid,
@@ -1711,8 +1711,8 @@ static char      s_ns_last_fname[28];  // /captures/ns_XXXXXX.txt
 // Read the saved password for 'ssid' from SPIFFS /wifi/creds.txt.
 // Returns empty String if file absent or SSID not found.
 static String _wifi_saved_pass(const char* ssid) {
-    if (!SPIFFS.begin(false)) return "";
-    File f = SPIFFS.open("/wifi/creds.txt", "r");
+    if (!LittleFS.begin(false)) return "";
+    File f = LittleFS.open("/wifi/creds.txt", "r");
     if (!f) return "";
     while (f.available()) {
         String line = f.readStringUntil('\n');
@@ -1858,8 +1858,8 @@ static void _ns_port_scan(IPAddress target) {
     M5.Lcd.printf("Done: %d open  [B=back]", open_cnt);
 
     // Append port-scan results to the netscan results file
-    if (s_ns_last_fname[0] && SPIFFS.begin(false)) {
-        File pf = SPIFFS.open(s_ns_last_fname, "a");
+    if (s_ns_last_fname[0] && LittleFS.begin(false)) {
+        File pf = LittleFS.open(s_ns_last_fname, "a");
         if (pf) {
             pf.printf("\n--- Port scan %s ---\n", ip_str);
             if (aborted) pf.printf("(aborted)\n");
@@ -1915,8 +1915,8 @@ static void _ns_host_discovery() {
     // Save host list to /captures
     snprintf(s_ns_last_fname, sizeof(s_ns_last_fname),
              "/captures/ns_%06lu.txt", millis() % 1000000UL);
-    if (s_ns_host_count > 0 && SPIFFS.begin(false)) {
-        File hf = SPIFFS.open(s_ns_last_fname, "w");
+    if (s_ns_host_count > 0 && LittleFS.begin(false)) {
+        File hf = LittleFS.open(s_ns_last_fname, "w");
         if (hf) {
             hf.printf("SSID  : %s\n", WiFi.SSID().c_str());
             hf.printf("Subnet: %d.%d.%d.0/24\n", local[0], local[1], local[2]);

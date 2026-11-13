@@ -1,10 +1,26 @@
+#ifndef KEY_PRINT_SCREEN
+#define KEY_PRINT_SCREEN  0x46
+#endif
+#ifndef KEY_PAUSE
+#define KEY_PAUSE         0x48
+#endif
+#ifndef KEY_NUM_LOCK
+#define KEY_NUM_LOCK      0x53
+#endif
+#ifndef KEY_SCROLL_LOCK
+#define KEY_SCROLL_LOCK   0x47
+#endif
+#ifndef KEY_MENU
+#define KEY_MENU          0x65
+#endif
+
 #include "badusb.h"
 #include "../../core/display.h"
 #include "../../core/menu.h"
 #include "../../core/config.h"
 #include "../../globals.h"
 #include <M5Unified.h>
-#include <SPIFFS.h>
+#include <LittleFS.h>
 #include <USB.h>
 #include <USBHIDKeyboard.h>
 
@@ -27,12 +43,12 @@ static const DefaultPayload DEFAULT_PAYLOADS[] = {
 };
 
 void badusb_ensure_defaults() {
-    if (!SPIFFS.begin(true)) return;   // true = format if blank
+    if (!LittleFS.begin(true)) return;   // true = format if blank
     for (auto& p : DEFAULT_PAYLOADS) {
         char path[72];
         snprintf(path, sizeof(path), "%s/%s", PAYLOAD_DIR, p.filename);
-        if (!SPIFFS.exists(path)) {
-            File f = SPIFFS.open(path, "w");
+        if (!LittleFS.exists(path)) {
+            File f = LittleFS.open(path, "w");
             if (f) { f.print(p.content); f.close(); }
         }
     }
@@ -239,8 +255,8 @@ static void _exec_line(const char* line) {
 
 // ─── Run script from /payloads/ file ─────────────────────────
 void badusb_run_script(const char* path) {
-    if (!SPIFFS.begin(false)) { show_error("SPIFFS error"); delay(2000); return; }
-    File f = SPIFFS.open(path, "r");
+    if (!LittleFS.begin(false)) { show_error("SPIFFS error"); delay(2000); return; }
+    File f = LittleFS.open(path, "r");
     if (!f) { show_error("Script not found"); delay(2000); return; }
 
     _usb_begin();
@@ -280,13 +296,13 @@ void badusb_run_script(const char* path) {
 
 // ─── Entry point — lists all files in /payloads/ ─────────────
 void badusb_module_run() {
-    if (!SPIFFS.begin(false)) { show_error("SPIFFS error"); delay(2000); return; }
+    if (!LittleFS.begin(false)) { show_error("SPIFFS error"); delay(2000); return; }
 
     struct Entry { char name[48]; char path[64]; };
     static Entry entries[MENU_MAX_ITEMS - 1];
     int count = 0;
 
-    File dir = SPIFFS.open(PAYLOAD_DIR);
+    File dir = LittleFS.open(PAYLOAD_DIR);
     if (dir) {
         File f = dir.openNextFile();
         while (f && count < (int)(sizeof(entries) / sizeof(entries[0]))) {

@@ -4,7 +4,7 @@
 #include "../../core/config.h"
 #include "../../globals.h"
 #include <M5Unified.h>
-#include <SPIFFS.h>
+#include <LittleFS.h>
 #include <WiFi.h>
 #include <ESPAsyncWebServer.h>
 
@@ -24,7 +24,7 @@ static void _scan_dir(const char* dir) {
     s_fcount = 0;
     strncpy(s_cur_dir, dir, sizeof(s_cur_dir)-1);
 
-    File d = SPIFFS.open(dir);
+    File d = LittleFS.open(dir);
     if (!d || !d.isDirectory()) return;
 
     File f = d.openNextFile();
@@ -32,7 +32,7 @@ static void _scan_dir(const char* dir) {
         FileEntry& e = s_files[s_fcount];
         // f.name() may return just a short name (e.g. "portal.txt") or the
         // full SPIFFS path ("/captures/portal.txt") depending on the Arduino-
-        // ESP32 version.  Always store the full path so SPIFFS.remove() works.
+        // ESP32 version.  Always store the full path so LittleFS.remove() works.
         const char* raw = f.name();
         if (raw[0] == '/') {
             strncpy(e.name, raw, sizeof(e.name) - 1);
@@ -88,7 +88,7 @@ static void _show_file_detail(const FileEntry& fe) {
         M5.Lcd.print("--- Preview ---");
         M5.Lcd.setTextColor(CLR_TEXT, CLR_BG);
 
-        File fp = SPIFFS.open(fe.name, "r");
+        File fp = LittleFS.open(fe.name, "r");
         if (fp) {
             int y = CONTENT_Y + 58;
             int lines = 0;
@@ -127,7 +127,7 @@ static void _show_file_detail(const FileEntry& fe) {
                 M5.update();
                 if (M5.BtnA.wasPressed()) {
                     Serial.printf("[FM] Remove: '%s'\n", fe.name);
-                    if (SPIFFS.remove(fe.name)) {
+                    if (LittleFS.remove(fe.name)) {
                         show_success("Deleted!");
                     } else {
                         // Show the attempted path so the bug is diagnosable
@@ -197,8 +197,8 @@ static void _browse_dir(const char* dir, const char* title) {
 
 // ─── SPIFFS stats bar ─────────────────────────────────────────
 static void _draw_storage_bar() {
-    size_t total = SPIFFS.totalBytes();
-    size_t used  = SPIFFS.usedBytes();
+    size_t total = LittleFS.totalBytes();
+    size_t used  = LittleFS.usedBytes();
     if (total == 0) return;
 
     char buf[40];
@@ -380,7 +380,7 @@ void file_wifi_server_run() {
 
         String json = "{\"files\":[";
         bool first = true;
-        File root = SPIFFS.open(dir);
+        File root = LittleFS.open(dir);
         if (root && root.isDirectory()) {
             File f = root.openNextFile();
             while (f) {
@@ -396,8 +396,8 @@ void file_wifi_server_run() {
                 f = root.openNextFile();
             }
         }
-        json += "],\"total\":" + String(SPIFFS.totalBytes());
-        json += ",\"used\":"  + String(SPIFFS.usedBytes()) + "}";
+        json += "],\"total\":" + String(LittleFS.totalBytes());
+        json += ",\"used\":"  + String(LittleFS.usedBytes()) + "}";
         req->send(200, "application/json", json);
     });
 
@@ -409,8 +409,8 @@ void file_wifi_server_run() {
         if (!path.startsWith(CAPTURES_DIR) && !path.startsWith(PAYLOAD_DIR) && !path.startsWith(WIFI_DIR)) {
             req->send(403, "text/plain", "forbidden"); return;
         }
-        if (!SPIFFS.exists(path)) { req->send(404, "text/plain", "not found"); return; }
-        req->send(SPIFFS, path, "application/octet-stream", /*download=*/true);
+        if (!LittleFS.exists(path)) { req->send(404, "text/plain", "not found"); return; }
+        req->send(LittleFS, path, "application/octet-stream", /*download=*/true);
     });
 
     // GET /rm?f=PATH — delete a file
@@ -420,7 +420,7 @@ void file_wifi_server_run() {
         if (!path.startsWith(CAPTURES_DIR) && !path.startsWith(PAYLOAD_DIR) && !path.startsWith(WIFI_DIR)) {
             req->send(403, "application/json", "{\"ok\":false,\"err\":\"forbidden\"}"); return;
         }
-        bool ok = SPIFFS.exists(path) && SPIFFS.remove(path);
+        bool ok = LittleFS.exists(path) && LittleFS.remove(path);
         Serial.printf("[FS] rm %s -> %s\n", path.c_str(), ok ? "ok" : "fail");
         req->send(200, "application/json", ok ? "{\"ok\":true}" : "{\"ok\":false,\"err\":\"remove failed\"}");
     });
@@ -459,7 +459,7 @@ void file_wifi_server_run() {
                 }
                 s_ul_path = dir + "/" + filename;
                 s_ul_ok   = false;
-                s_ul_fp   = SPIFFS.open(s_ul_path, "w");
+                s_ul_fp   = LittleFS.open(s_ul_path, "w");
                 if (!s_ul_fp) {
                     Serial.printf("[FS] upload open failed: %s\n", s_ul_path.c_str());
                     return;
@@ -534,8 +534,8 @@ void file_wifi_server_run() {
 
             // Storage usage
             char u[10], t[10];
-            _fmt_size(SPIFFS.usedBytes(),  u, sizeof(u));
-            _fmt_size(SPIFFS.totalBytes(), t, sizeof(t));
+            _fmt_size(LittleFS.usedBytes(),  u, sizeof(u));
+            _fmt_size(LittleFS.totalBytes(), t, sizeof(t));
             M5.Lcd.setTextColor(CLR_TEXT_DIM, CLR_BG);
             M5.Lcd.setCursor(4, CONTENT_Y + 70);
             M5.Lcd.printf("Storage: %s / %s", u, t);
