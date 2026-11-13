@@ -1,28 +1,28 @@
 #include "config.h"
 #include "../globals.h"
-#include <SPIFFS.h>
+#include <LittleFS.h>
 #include <ArduinoJson.h>
 
 PQConfig g_cfg;
 
 void config_init() {
-    if (!SPIFFS.begin(true)) {
+    if (!LittleFS.begin(true)) {
         Serial.println("[CFG] SPIFFS mount failed — formatting");
-        SPIFFS.format();
-        SPIFFS.begin(true);
+        LittleFS.format();
+        LittleFS.begin(true);
     }
     // Ensure required directories exist
-    if (!SPIFFS.exists(PAYLOAD_DIR))  SPIFFS.mkdir(PAYLOAD_DIR);
-    if (!SPIFFS.exists(CAPTURES_DIR)) SPIFFS.mkdir(CAPTURES_DIR);
+    if (!LittleFS.exists(PAYLOAD_DIR))  LittleFS.mkdir(PAYLOAD_DIR);
+    if (!LittleFS.exists(CAPTURES_DIR)) LittleFS.mkdir(CAPTURES_DIR);
     config_load();
 }
 
 void config_load() {
-    if (!SPIFFS.exists(CONFIG_FILE)) {
+    if (!LittleFS.exists(CONFIG_FILE)) {
         config_save();  // write defaults
         return;
     }
-    File f = SPIFFS.open(CONFIG_FILE, "r");
+    File f = LittleFS.open(CONFIG_FILE, "r");
     if (!f) return;
 
     JsonDocument doc;
@@ -46,7 +46,7 @@ void config_load() {
 }
 
 void config_save() {
-    File f = SPIFFS.open(CONFIG_FILE, "w");
+    File f = LittleFS.open(CONFIG_FILE, "w");
     if (!f) { Serial.println("[CFG] Save failed"); return; }
 
     JsonDocument doc;
@@ -69,6 +69,6 @@ void config_save() {
 
 void config_reset() {
     g_cfg = PQConfig();
-    if (SPIFFS.exists(CONFIG_FILE)) SPIFFS.remove(CONFIG_FILE);
+    if (LittleFS.exists(CONFIG_FILE)) LittleFS.remove(CONFIG_FILE);
     config_save();
 }

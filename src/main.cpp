@@ -7,7 +7,7 @@
 
 #include <Arduino.h>
 #include <M5Unified.h>
-#include <SPIFFS.h>
+#include <LittleFS.h>
 #include <SPI.h>
 
 #include "globals.h"

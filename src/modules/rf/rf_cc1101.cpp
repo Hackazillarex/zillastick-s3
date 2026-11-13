@@ -4,7 +4,7 @@
 #include "../../core/config.h"
 #include "../../globals.h"
 #include <M5Unified.h>
-#include <SPIFFS.h>
+#include <LittleFS.h>
 #include <SPI.h>
 #include <ELECHOUSE_CC1101_SRC_DRV.h>
 
@@ -244,7 +244,7 @@ void rf_scan_run() {
             if (do_save) {
                 char fname[40];
                 snprintf(fname, sizeof(fname), "%s/cap_%lu.raw", CAPTURES_DIR, millis());
-                File fh = SPIFFS.open(fname, "w");
+                File fh = LittleFS.open(fname, "w");
                 if (fh) {
                     fh.write((uint8_t*)&s_cap.freq,  sizeof(float));
                     fh.write(&s_cap.mod, 1);
@@ -450,7 +450,7 @@ void rf_capture_run() {
     // Save to SPIFFS
     char fname[40];
     snprintf(fname, sizeof(fname), "%s/cap_%lu.raw", CAPTURES_DIR, millis());
-    File f = SPIFFS.open(fname, "w");
+    File f = LittleFS.open(fname, "w");
     if (f) {
         f.write((uint8_t*)&s_cap.freq,  sizeof(float));
         f.write(&s_cap.mod, 1);
@@ -588,7 +588,7 @@ void rf_replay_run() {
 // ─── Replay from file ─────────────────────────────────────────
 void rf_replay_file_run() {
     // List capture files
-    File dir = SPIFFS.open(CAPTURES_DIR);
+    File dir = LittleFS.open(CAPTURES_DIR);
     if (!dir) { show_error("No captures dir"); delay(2000); return; }
 
     Menu fm("Captures", "A:scroll", "B:select");
@@ -599,7 +599,7 @@ void rf_replay_file_run() {
     while (entry && fcount < RF_CAPTURE_MAX_FILES) {
         if (!entry.isDirectory()) {
             // entry.name() on ESP32 SPIFFS returns the bare filename only
-            // ("cap_12345.raw"), not the full path.  SPIFFS.open() needs the
+            // ("cap_12345.raw"), not the full path.  LittleFS.open() needs the
             // full path or it silently fails.  Build it from CAPTURES_DIR.
             String full = String(CAPTURES_DIR) + "/" + String(entry.name());
             files[fcount] = full;
@@ -620,7 +620,7 @@ void rf_replay_file_run() {
             int sel = fm.selected();
             if (sel == fcount) return;
             // Load file into s_cap
-            File f = SPIFFS.open(files[sel]);
+            File f = LittleFS.open(files[sel]);
             if (f) {
                 f.read((uint8_t*)&s_cap.freq, sizeof(float));
                 f.read(&s_cap.mod, 1);
