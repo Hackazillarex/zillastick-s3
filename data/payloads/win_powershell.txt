@@ -1,5 +1,5 @@
 REM Open PowerShell
 GUI r
-DELAY 600
+DELAY 800
 STRING powershell
 ENTER

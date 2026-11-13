@@ -1,0 +1,8 @@
+REM Dump Mac hardware / network / user info to Desktop, open in TextEdit
+GUI SPACE
+DELAY 600
+STRING Terminal
+ENTER
+DELAY 1200
+STRING (echo "=== HARDWARE ===" && system_profiler SPHardwareDataType && echo "=== NETWORK ===" && ifconfig && echo "=== USERS ===" && dscl . list /Users | grep -v '^_') > ~/Desktop/zillastick_dump.txt && open -a TextEdit ~/Desktop/zillastick_dump.txt
+ENTER
